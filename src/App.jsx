@@ -1,7 +1,6 @@
 import React from "react";
-import { createRoot } from "react-dom";
+import { createRoot } from "react-dom/client";
 import Order from "./Order";
-import { div } from "prelude-ls";
 
 const App = () => {
   return (
@@ -13,4 +12,4 @@ const App = () => {
 }
 const root = document.getElementById("root");
 const rootElement = createRoot(root);
-rootElement.render(React.createElement(App));
+rootElement.render(<App />);
