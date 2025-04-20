@@ -1,15 +1,21 @@
-import React from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import Order from "./Order";
+import PizzaOfTheDay from "./PizzaOfTheDay";
 
 const App = () => {
   return (
     <div>
-      <h1>Padre Gino's - Order Now</h1>
-        <Order />
+      <h1 className="logo">Padre Gino's - Order Now</h1>
+      <Order />
+      <PizzaOfTheDay/>
     </div>
-  )
-}
+  );
+};
 const root = document.getElementById("root");
 const rootElement = createRoot(root);
-rootElement.render(<App />);
+rootElement.render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);
