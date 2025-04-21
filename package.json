@@ -9,6 +9,8 @@
     "test": "jest"
   },
   "devDependencies": {
+    "@tanstack/router-devtools": "^1.65.0",
+    "@tanstack/router-plugin": "^1.65.0",
     "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^9.9.1",
     "eslint-config-prettier": "^9.1.0",
@@ -22,6 +24,7 @@
   "main": "App.js",
   "type": "module",
   "dependencies": {
+    "@tanstack/react-router": "^1.65.0",
     "acorn": "^8.14.1",
     "acorn-jsx": "^5.3.2",
     "ajv": "^6.12.6",
