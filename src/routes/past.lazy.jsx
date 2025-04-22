@@ -1,28 +1,42 @@
 import { useQuery } from "@tanstack/react-query";
 import { createLazyFileRoute } from "@tanstack/react-router";
-import { use, useState } from "react";
+import { useState } from "react";
 import getPastOrders from "../api/getPastOrders";
+import getPastOrder from "../api/getPastOrder.js";
+import Modal from "../Modal";
+import {priceConverter} from "../useCurrency.jsx";
+
+
 
 export const Route = createLazyFileRoute("/past")({
   component: PartOrdersRoute,
 });
 
 function PartOrdersRoute() {
-  const [page,setPage]=useState(1);
-  const {isLoading,data} = useQuery({
-    queryKey:['page-orders',page],
-    queryFn:()=>getPastOrders(page),
-    staleTime:30000
+  const [page, setPage] = useState(1);
+  const [focusedOrder, setFocusedOrder] = useState(null);
+  const { isLoading, data } = useQuery({
+    queryKey: ["page-orders", page],
+    queryFn: () => getPastOrders(page),
+    staleTime: 30000,
+  });
+
+  const {isLoading:isLoadingPastOrder,data:pastOrderData}=useQuery({
+    queryKey:["past-order",focusedOrder],
+    queryFn:()=>getPastOrder(focusedOrder),
+    staleTime:86400000,
+    enabled: !!focusedOrder
   })
-  if (isLoading){
+
+  if (isLoading) {
     return (
       <div className="past-orders">
         <h2>LOADING...</h2>
       </div>
     );
   }
-  
-  return(
+
+  return (
     <div className="past-orders">
       <table>
         <thead>
@@ -33,9 +47,13 @@ function PartOrdersRoute() {
           </tr>
         </thead>
         <tbody>
-          {data.map(order=>(
+          {data.map((order) => (
             <tr key={order.order_id}>
-              <td>{order.order_id}</td>
+              <td>
+                <button onClick={()=>setFocusedOrder(order.order_id)}>
+                {order.order_id}
+                </button>
+                </td>
               <td>{order.date}</td>
               <td>{order.time}</td>
             </tr>
@@ -43,10 +61,45 @@ function PartOrdersRoute() {
         </tbody>
       </table>
       <div className="pages">
-        <button disabled={page<=1} onClick={()=>setPage(page-1)}>Previous</button>
-        <button disabled={data.length<10} onClick={()=>setPage(page+1)}>Next</button>
+        <button disabled={page <= 1} onClick={() => setPage(page - 1)}>
+          Previous
+        </button>
+        <button disabled={data.length < 10} onClick={() => setPage(page + 1)}>
+          Next
+        </button>
       </div>
+      {focusedOrder ? (
+        <Modal>
+          <h2>Order #{focusedOrder}</h2>
+          {!isLoadingPastOrder ? (
+            <table>
+              <thead>
+                <tr>
+                  <td>Image</td>
+                  <td>Name</td>
+                  <td>Size</td>
+                  <td>Quantity</td>
+                  <td>Price</td>
+                  <td>Total</td>
+                </tr>
+              </thead>
+              <tbody>
+                  {pastOrderData.orderItems.map(pizza=>(
+                    <tr key={`${pizza.pizzaTypeId}_${pizza.size}`}>
+                      <td><img src={pizza.image} alt={pizza.name} /></td>
+                      <td>{pizza.name}</td>
+                      <td>{pizza.size}</td>
+                      <td>{pizza.quantity}</td>
+                      <td>{priceConverter(pizza.price)}</td>
+                      <td>{priceConverter(pizza.total)}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          ): <p>Loadingggg</p> }
+          <button onClick={()=>setFocusedOrder()}>Close</button>
+        </Modal>
+      ):null}
     </div>
-  )
-
+  );
 }
